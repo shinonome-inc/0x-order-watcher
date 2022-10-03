@@ -6,6 +6,7 @@ import { OrderWatcher } from './order_watcher';
 import { getDBConnectionAsync } from './db_connection';
 import { logger } from './logger';
 import { RPC_URL, EXCHANGE_RPOXY, PORT, SRA_ORDER_EXPIRATION_BUFFER_SECONDS, LOG_LEVEL, CHAIN_ID } from './config';
+import fs from 'fs';
 
 // creates an Express application.
 const app = express();
@@ -65,6 +66,8 @@ provider.on(orderFilledEventFilter, (log) => {
             makerTokenFilledAmount:
             takerTokenFeeFilledAmount:
          */
+            fs.writeFileSync(outputFilepath, 'orderHash\tmaker\ttaker\tfeeRecipient\tmakerToken\ttakerToken\ttakerTokenFilledAmount\tmakerTokenFilledAmount\ttakerTokenFeeFilledAmount');
+            fs.writeFileSync(outputFilepath, filledOrderEvent.orderHash + '\t' + filledOrderEvent.maker + '\t' + filledOrderEvent.taker + '\t' + filledOrderEvent.feeRecipient + '\t' + filledOrderEvent.makerToken + '\t' + filledOrderEvent.takerToken + '\t' + filledOrderEvent.takerTokenFilledAmount + '\t' + filledOrderEvent.makerTokenFilledAmount + '\t' + filledOrderEvent.takerTokenFeeFilledAmount);
         logger.debug('filledOrderEvent: orderHash ' + filledOrderEvent.orderHash);
         await orderWatcher.updateFilledOrdersAsync([filledOrderEvent]);
     }, filledOrderEvent);
