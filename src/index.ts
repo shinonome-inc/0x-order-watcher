@@ -11,6 +11,7 @@ import * as fs from "fs";
 const outputFilepath = '../log_file/log.csv'
 
 // creates an Express application.
+const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
