@@ -8,7 +8,7 @@ import { logger } from './logger';
 import { RPC_URL, EXCHANGE_RPOXY, PORT, SRA_ORDER_EXPIRATION_BUFFER_SECONDS, LOG_LEVEL, CHAIN_ID } from './config';
 import * as fs from "fs";
 
-const outputFilepath = '../log_file/log.csv'
+const outputFilepath = '../log/event_log.csv'
 
 // creates an Express application.
 const app = express();
@@ -68,15 +68,18 @@ provider.on(orderFilledEventFilter, (log) => {
             makerTokenFilledAmount:
             takerTokenFeeFilledAmount:
          */
+        /*
+        次のように出力された
+        orderHash	maker	taker	feeRecipient	makerToken	takerToken	takerTokenFilledAmount	makerTokenFilledAmount	takerTokenFeeFilledAmount
+        0x260e3ade4c5e995074e51c5e6031a7f9ac4c466923cf636a52da5618733ca733	0x260e3ade4c5e995074e51c5e6031a7f9ac4c466923cf636a52da5618733ca733	0x260e3ade4c5e995074e51c5e6031a7f9ac4c466923cf636a52da5618733ca733	0x260e3ade4c5e995074e51c5e6031a7f9ac4c466923cf636a52da5618733ca733	0x260e3ade4c5e995074e51c5e6031a7f9ac4c466923cf636a52da5618733ca733	0x260e3ade4c5e995074e51c5e6031a7f9ac4c466923cf636a52da5618733ca733	2200000000000000000	1500000000000000000	3450000000000000000
+        */
             fs.writeFile(outputFilepath, 'orderHash\tmaker\ttaker\tfeeRecipient\tmakerToken\ttakerToken\ttakerTokenFilledAmount\tmakerTokenFilledAmount\ttakerTokenFeeFilledAmount' + `\n` + filledOrderEvent.orderHash + '\t' + filledOrderEvent.maker + '\t' + filledOrderEvent.taker + '\t' + filledOrderEvent.feeRecipient + '\t' + filledOrderEvent.makerToken + '\t' + filledOrderEvent.takerToken + '\t' + filledOrderEvent.takerTokenFilledAmount + '\t' + filledOrderEvent.makerTokenFilledAmount + '\t' + filledOrderEvent.takerTokenFeeFilledAmount, (err) => {
                 // 書き出しに失敗した場合
                 if(err){
-                  console.log("エラーが発生しました。" + err)
-                  throw err
+                  logger.error(err)
                 }
                 // 書き出しに成功した場合
                 else{
-                  console.log("ファイルが正常に書き出しされました")
                 }
               });
         logger.debug('filledOrderEvent: orderHash ' + filledOrderEvent.orderHash);
