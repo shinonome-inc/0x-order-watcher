@@ -80,7 +80,3 @@ export const NATIVE_WRAPPED_TOKEN_SYMBOL = nativeWrappedTokenSymbol(CHAIN_ID);
 export const SYNC_INTERVAL: number = Number(process.env.SYNC_INTERVAL) || 2000;
 
 export const POLLING_INTERVAL: number = Number(process.env.POLLING_INTERVAL) || 1000;
-
-export const DEFAULT_LOG_PATH: string = '../events.csv';
-
-export const LOG_PATH: string = process.env.LOG_PATH || DEFAULT_LOG_PATH;
