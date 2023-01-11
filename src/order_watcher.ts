@@ -164,6 +164,58 @@ export class OrderWatcher implements OrderWatcherInterface {
             isSignatureValids: boolean[];
         } = await this._zeroEx.batchGetLimitOrderRelevantStates(limitOrders, signatures);
 
+        for (const [index, isValidSig] of Object.entries(isSignatureValids)) {
+            const i = parseInt(index, 10)
+            if (!isValidSig) {
+                throw new Error(`invalid signature: ${orderInfos[i].orderHash}`);
+            }
+
+            const entity = orderUtils.serializeOrder({
+                order: orders[i],
+                metaData: {
+                    orderHash: orderInfos[i].orderHash,
+                    remainingFillableTakerAmount: actualFillableTakerTokenAmounts[i] as any,
+                },
+            });
+
+            if (actualFillableTakerTokenAmounts[i].gt(0) && orderInfos[i].status === OrderStatus.FILLABLE) {
+                const order = await this._connection.getRepository(SignedOrderV4Entity).findOne({ hash: entity.hash })
+                if (!order) {
+                    validOrderEntities.push(entity);
+                }
+            }
+
+            // TODO: switch分にする??
+            if (orderInfos[i].status === OrderStatus.INVALID) {
+                logger.info(
+                    `order is invalid: ${orderInfos[i].orderHash} status: ${OrderStatus[orderInfos[i].status]} order: ${orderInfos[i]}`,
+                );
+                invalidOrderEntities.push(entity);
+            } else if (actualFillableTakerTokenAmounts[i].isZero()) {
+                logger.info(
+                    `order is not fillable: ${orderInfos[i].orderHash} status: ${OrderStatus[orderInfos[i].status]} order: ${orderInfos[i]}`,
+                );
+                invalidOrderEntities.push(entity);
+            } else if (orderInfos[i].status === OrderStatus.FILLED) {
+                logger.info(
+                    `order is filled: ${orderInfos[i].orderHash} status: ${OrderStatus[orderInfos[i].status]}`,
+                );
+                filledOrderEntities.push(entity);
+            } else if (orderInfos[i].status === OrderStatus.CANCELLED) {
+                logger.info(
+                    `order is cancelled: ${orderInfos[i].orderHash} status: ${OrderStatus[orderInfos[i].status]
+                    }`,
+                );
+                canceledOrderEntities.push(entity);
+            } else if (orderInfos[i].status === OrderStatus.EXPIRED) {
+                logger.info(
+                    `order is expired: ${orderInfos[i].orderHash} status: ${OrderStatus[orderInfos[i].status]
+                    }`,
+                );
+                expiredOrderEntities.push(entity);
+            }
+
+        }
         isSignatureValids.forEach((isValidSig: Boolean, index) => {
             if (!isValidSig) {
                 throw new Error(`invalid signature: ${orderInfos[index].orderHash}`);
