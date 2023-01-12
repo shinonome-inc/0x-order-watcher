@@ -216,53 +216,6 @@ export class OrderWatcher implements OrderWatcherInterface {
             }
 
         }
-        isSignatureValids.forEach((isValidSig: Boolean, index) => {
-            if (!isValidSig) {
-                throw new Error(`invalid signature: ${orderInfos[index].orderHash}`);
-            }
-
-            const entity = orderUtils.serializeOrder({
-                order: orders[index],
-                metaData: {
-                    orderHash: orderInfos[index].orderHash,
-                    remainingFillableTakerAmount: actualFillableTakerTokenAmounts[index] as any,
-                },
-            });
-
-            if (actualFillableTakerTokenAmounts[index].gt(0) && orderInfos[index].status === OrderStatus.FILLABLE) {
-                validOrderEntities.push(entity);
-            }
-
-            // TODO: switch分にする??
-            if (orderInfos[index].status === OrderStatus.INVALID) {
-                logger.info(
-                    `order is invalid: ${orderInfos[index].orderHash} status: ${OrderStatus[orderInfos[index].status]} order: ${orderInfos[index]}`,
-                );
-                invalidOrderEntities.push(entity);
-            } else if (actualFillableTakerTokenAmounts[index].isZero()) {
-                logger.info(
-                    `order is not fillable: ${orderInfos[index].orderHash} status: ${OrderStatus[orderInfos[index].status]} order: ${orderInfos[index]}`,
-                );
-                invalidOrderEntities.push(entity);
-            } else if (orderInfos[index].status === OrderStatus.FILLED) {
-                logger.info(
-                    `order is filled: ${orderInfos[index].orderHash} status: ${OrderStatus[orderInfos[index].status]}`,
-                );
-                filledOrderEntities.push(entity);
-            } else if (orderInfos[index].status === OrderStatus.CANCELLED) {
-                logger.info(
-                    `order is cancelled: ${orderInfos[index].orderHash} status: ${OrderStatus[orderInfos[index].status]
-                    }`,
-                );
-                canceledOrderEntities.push(entity);
-            } else if (orderInfos[index].status === OrderStatus.EXPIRED) {
-                logger.info(
-                    `order is expired: ${orderInfos[index].orderHash} status: ${OrderStatus[orderInfos[index].status]
-                    }`,
-                );
-                expiredOrderEntities.push(entity);
-            }
-        });
         return [
             validOrderEntities,
             invalidOrderEntities,
