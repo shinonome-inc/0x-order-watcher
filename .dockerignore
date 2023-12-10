@@ -1,0 +1,9 @@
+docs
+node_modules
+postgres
+.circleci
+.git
+.prettierignore
+.prettierrc
+delete_all_orders.sql
+.env.example
