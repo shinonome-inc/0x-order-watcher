@@ -34,7 +34,7 @@ export const META_TXN_RELAY_EXPECTED_MINED_SEC = 10;
 // Ignore orders greater than x seconds when responding to SRA requests
 export const SRA_ORDER_EXPIRATION_BUFFER_SECONDS: number = 10;
 
-export const POSTGRES_URI = 'postgres://api:api@localhost/api' || process.env.POSTGRES_URI;
+export const POSTGRES_URI = process.env.POSTGRES_URI || 'postgres://api:api@localhost/api';
 
 export const PROTOCOL_FEE_MULTIPLIER = new BigNumber(0);
 
